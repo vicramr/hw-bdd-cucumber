@@ -29,10 +29,25 @@ When /I (un)?check the following ratings: (.*)/ do |uncheck, rating_list|
   # HINT: use String#split to split up the rating_list, then
   #   iterate over the ratings and reuse the "When I check..." or
   #   "When I uncheck..." steps in lines 89-95 of web_steps.rb
-  fail "Unimplemented"
+  verb = uncheck ? "uncheck" : "check"
+  rating_list.split(', ').each do |rating|
+    steps %Q{
+      When I #{verb} "ratings[#{rating}]"
+    }
+  end
 end
 
 Then /I should see all the movies/ do
   # Make sure that all the movies in the app are visible in the table
-  fail "Unimplemented"
+
+  # Find the HTML table using capybara, then count the number of
+  # rows in it, then compare that to the number of rows
+  # in the table
+  tab = page.find(id: "movies")
+  rows = tab.all("tr") # adapted from here: https://goois.net/parse-html-tables-cucumber-recipes.html
+  expect(rows.length - 1).to eq (Movie.count) # Subtract 1 to account for header
+
+  # Useful capybara docs:
+  # https://rubydoc.info/github/teamcapybara/capybara/master/Capybara/Node/Finders#find-instance_method
+  # https://rubydoc.info/github/teamcapybara/capybara/master/Capybara/Node/Finders#all-instance_method
 end
